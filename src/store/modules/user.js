@@ -42,6 +42,12 @@ const mutations = {
   }
 }
 
+function GetUserinfo(token) {
+  let UserBase64Str = token.split('.')[1] // 获取用户信息部分
+  let commonContent = UserBase64Str.replace(/\s/g, '+')
+  commonContent = Buffer.from(commonContent, 'base64').toString()
+  return JSON.parse(commonContent)
+}
 const actions = {
   // user login
   login({
@@ -61,10 +67,8 @@ const actions = {
         const data = response
         if (data.code === 2000) {
           let token = data.items
-          let UserBase64Str = token.split('.')[1] // 获取用户信息部分
-          let commonContent = UserBase64Str.replace(/\s/g, '+')
-          commonContent = Buffer.from(commonContent, 'base64').toString()
-          commit('SET_USERINFO', JSON.parse(commonContent))
+          let Userinfo = GetUserinfo(token)
+          commit('SET_USERINFO', Userinfo)
           commit('SET_TOKEN', token)
           setToken(token)
         } else {

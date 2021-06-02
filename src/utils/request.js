@@ -1,7 +1,13 @@
 import axios from 'axios'
-import { MessageBox, Message } from 'element-ui'
+import {
+  MessageBox,
+  Message,
+  Notification
+} from 'element-ui'
 import store from '@/store'
-import { getToken } from '@/utils/auth'
+import {
+  getToken
+} from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
@@ -19,7 +25,7 @@ service.interceptors.request.use(
       // let each request carry token
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
-      config.headers['X-Token'] = getToken()
+      config.headers['Bear'] = getToken()
     }
     return config
   },
@@ -30,12 +36,32 @@ service.interceptors.request.use(
   }
 )
 
+function CreateMessageBox(message, messageTitle, type, func) {
+  MessageBox.confirm(message, messageTitle, {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: type
+  }).then(() => {
+    if (typeof (func) === 'function') {
+      func()
+    }
+  })
+}
+
+function CreateNotify(message, title, type) {
+  Notification({
+    title: title,
+    message: message,
+    type: type,
+    position: 'bottom-right'
+  })
+}
 // response interceptor
 service.interceptors.response.use(
   /**
    * If you want to get http information such as headers or status
    * Please return  response => response
-  */
+   */
 
   /**
    * Determine the request status by custom code
@@ -44,10 +70,42 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-    if (res.code === 2000) {
+    switch (res.code) {
+      case 50000:
+        Message({
+          message: res.message || 'success',
+          type: 'success',
+          duration: 5 * 1000
+        })
+        break
+      case 50008:
+        CreateMessageBox(res.message, 'Confirm logout', 'warning', store.dispatch('user/resetToken').then(() => {
+          location.reload()
+        }))
+        break
+      case 50012:
+        CreateMessageBox(res.message, 'Confirm logout', 'warning', store.dispatch('user/resetToken').then(() => {
+          location.reload()
+        }))
+        break
+      case 50014:
+        CreateMessageBox(res.message, 'Confirm logout', 'warning', store.dispatch('user/resetToken').then(() => {
+          location.reload()
+        }))
+        break
+      case 2000:
+        CreateNotify(res.message, '成功', 'success')
+        break
+      case -1:
+        CreateNotify(res.message, '失败', 'error')
+        break
+      default:
+        break
+    }
+    if (res.code === 50000) {
       Message({
-        message: res.message || 'Sucess',
-        type: 'sucess',
+        message: res.message || 'success',
+        type: 'success',
         duration: 5 * 1000
       })
     } else {
