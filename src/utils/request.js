@@ -2,7 +2,8 @@ import axios from 'axios'
 import {
   MessageBox,
   Message,
-  Notification
+  Notification,
+  Loading
 } from 'element-ui'
 import store from '@/store'
 import {
@@ -15,12 +16,17 @@ const service = axios.create({
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout
 })
-
+let loadingInstance
 // request interceptor
 service.interceptors.request.use(
   config => {
     // do something before request is sent
-
+    loadingInstance = Loading.service({
+      lock: true,
+      text: '请等待',
+      spinner: 'el-icon-loading',
+      background: 'rgba(0, 0, 0, 0.7)'
+    })
     if (store.getters.token) {
       // let each request carry token
       // ['X-Token'] is a custom headers key
@@ -30,6 +36,7 @@ service.interceptors.request.use(
     return config
   },
   error => {
+    loadingInstance.close()
     // do something with request error
     console.log(error) // for debug
     return Promise.reject(error)
@@ -68,6 +75,7 @@ service.interceptors.response.use(
    * Here is just an example
    * You can also judge the status by HTTP Status Code
    */
+
   response => {
     const res = response.data
     switch (res.code) {
@@ -102,33 +110,34 @@ service.interceptors.response.use(
       default:
         break
     }
-    if (res.code === 50000) {
-      Message({
-        message: res.message || 'success',
-        type: 'success',
-        duration: 5 * 1000
-      })
-    } else {
-      Message({
-        message: res.message || 'Error',
-        type: 'error',
-        duration: 5 * 1000
-      })
-      if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
-        // to re-login
-        MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
-          confirmButtonText: 'Re-Login',
-          cancelButtonText: 'Cancel',
-          type: 'warning'
-        }).then(() => {
-          store.dispatch('user/resetToken').then(() => {
-            location.reload()
-          })
-        })
-      }
-      return Promise.reject(new Error(res.message || 'Error'))
-    }
+    loadingInstance.close()
     return res
+    // if (res.code === 50000) {
+    //   Message({
+    //     message: res.message || 'success',
+    //     type: 'success',
+    //     duration: 5 * 1000
+    //   })
+    // } else {
+    //   Message({
+    //     message: res.message || 'Error',
+    //     type: 'error',
+    //     duration: 5 * 1000
+    //   })
+    //   if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
+    //     // to re-login
+    //     MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
+    //       confirmButtonText: 'Re-Login',
+    //       cancelButtonText: 'Cancel',
+    //       type: 'warning'
+    //     }).then(() => {
+    //       store.dispatch('user/resetToken').then(() => {
+    //         location.reload()
+    //       })
+    //     })
+    //   }
+    //   return Promise.reject(new Error(res.message || 'Error'))
+    // }
     // if the custom code is not 20000, it is judged as an error.
     // if (res.code !== 2000) {
 
@@ -140,6 +149,7 @@ service.interceptors.response.use(
   },
   error => {
     console.log('err' + error) // for debug
+    loadingInstance.close()
     Message({
       message: error.message,
       type: 'error',

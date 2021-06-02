@@ -43,10 +43,13 @@ const mutations = {
 }
 
 function GetUserinfo(token) {
-  let UserBase64Str = token.split('.')[1] // 获取用户信息部分
-  let commonContent = UserBase64Str.replace(/\s/g, '+')
-  commonContent = Buffer.from(commonContent, 'base64').toString()
-  return JSON.parse(commonContent)
+  if (state.userinfo == null) {
+    let UserBase64Str = token.split('.')[1] // 获取用户信息部分
+    let commonContent = UserBase64Str.replace(/\s/g, '+')
+    commonContent = Buffer.from(commonContent, 'base64').toString()
+    mutations.SET_USERINFO(state, JSON.parse(commonContent))
+  }
+  return state.userinfo
 }
 const actions = {
   // user login
@@ -67,10 +70,8 @@ const actions = {
         const data = response
         if (data.code === 2000) {
           let token = data.items
-          let Userinfo = GetUserinfo(token)
-          commit('SET_USERINFO', Userinfo)
-          commit('SET_TOKEN', token)
           setToken(token)
+          GetUserinfo()
         } else {
           console.log(1)
         }
