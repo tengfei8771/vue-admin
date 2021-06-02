@@ -68,7 +68,7 @@ const actions = {
           commit('SET_TOKEN', token)
           setToken(token)
         } else {
-
+          console.log(1)
         }
 
         resolve()
