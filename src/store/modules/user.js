@@ -68,7 +68,6 @@ const actions = {
         pwd: password
       }).then(response => {
         const data = response
-        console.log(data.code === 50000)
         if (data.code === 50000) {
           let token = data.items
           commit('SET_TOKEN', token)
@@ -79,7 +78,6 @@ const actions = {
           mutations.SET_USERINFO(state, JSON.parse(commonContent))
           console.log(state.userinfo)
         }
-        console.log('resolve')
         resolve()
       }).catch(error => {
         reject(error)

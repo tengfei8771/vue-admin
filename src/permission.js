@@ -9,7 +9,8 @@ import {
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import {
-  getToken
+  getToken,
+  removeToken
 } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
 
@@ -28,16 +29,14 @@ router.beforeEach(async(to, from, next) => {
 
   // determine whether the user has logged in
   const hasToken = getToken()
-  console.log(hasToken)
   if (hasToken) {
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
       // next({ path: '/' })
-      // removeToken()
+      removeToken()
       NProgress.done() // hack: https://github.com/PanJiaChen/vue-element-admin/pull/2939
     } else {
       // determine whether the user has obtained his permission roles through getInfo
-      console.log('before')
       if (store.getters.userinfo === null) {
         getUserinfo()
       }
@@ -54,11 +53,9 @@ router.beforeEach(async(to, from, next) => {
           // generate accessible routes map based on roles
           // const accessRoutes = await store.dispatch('permission/generateRoutes', roles)
           await store.dispatch('menu/getMenu', userinfo.ID)
-          const accessRoutes = store.state.menu.menuinfo
-          console.log(accessRoutes)
+          const accessRoutes = store.getters.menuinfo
           // dynamically add accessible routes
           router.addRoutes(accessRoutes)
-
           // hack method to ensure that addRoutes is complete
           // set the replace: true, so the navigation will not leave a history record
           next({
@@ -69,7 +66,7 @@ router.beforeEach(async(to, from, next) => {
           // remove token and go to login page to re-login
           await store.dispatch('user/resetToken')
           Message.error(error || 'Has Error')
-          next(`/login?redirect=${to.path}`)
+          // next(`/login?redirect=${to.path}`)
           NProgress.done()
         }
       }
@@ -82,7 +79,7 @@ router.beforeEach(async(to, from, next) => {
       next()
     } else {
       // other pages that do not have permission to access are redirected to the login page.
-      next(`/login?redirect=${to.path}`)
+      // next(`/login?redirect=${to.path}`)
       NProgress.done()
     }
   }
