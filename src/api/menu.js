@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 export function getMenubyRole(data) {
   return request({
-    url: '/GetMenubyRole',
+    url: 'menu/GetMenubyRole',
     method: 'get',
     params: data
   })

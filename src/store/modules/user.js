@@ -21,6 +21,16 @@ const state = {
   userinfo: null
 }
 
+export function getUserinfo() {
+  if (state.userinfo == null) {
+    let UserBase64Str = getToken().split('.')[1] // 获取用户信息部分
+    let commonContent = UserBase64Str.replace(/\s/g, '+')
+    commonContent = Buffer.from(commonContent, 'base64').toString()
+    mutations.SET_USERINFO(state, JSON.parse(commonContent))
+  }
+
+  // return state.userinfo
+}
 const mutations = {
   SET_TOKEN: (state, token) => {
     state.token = token
@@ -41,16 +51,6 @@ const mutations = {
     state.userinfo = userinfo
   }
 }
-
-function GetUserinfo(token) {
-  if (state.userinfo == null) {
-    let UserBase64Str = token.split('.')[1] // 获取用户信息部分
-    let commonContent = UserBase64Str.replace(/\s/g, '+')
-    commonContent = Buffer.from(commonContent, 'base64').toString()
-    mutations.SET_USERINFO(state, JSON.parse(commonContent))
-  }
-  return state.userinfo
-}
 const actions = {
   // user login
   login({
@@ -68,14 +68,18 @@ const actions = {
         pwd: password
       }).then(response => {
         const data = response
-        if (data.code === 2000) {
+        console.log(data.code === 50000)
+        if (data.code === 50000) {
           let token = data.items
+          commit('SET_TOKEN', token)
           setToken(token)
-          GetUserinfo()
-        } else {
-          console.log(1)
+          let UserBase64Str = token.split('.')[1] // 获取用户信息部分
+          let commonContent = UserBase64Str.replace(/\s/g, '+')
+          commonContent = Buffer.from(commonContent, 'base64').toString()
+          mutations.SET_USERINFO(state, JSON.parse(commonContent))
+          console.log(state.userinfo)
         }
-
+        console.log('resolve')
         resolve()
       }).catch(error => {
         reject(error)
