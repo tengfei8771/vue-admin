@@ -120,7 +120,7 @@ function CreateRealParentMenuRouteNode(DataSource) {
     let Node = {
       MenuID: t.ID,
       path: t.MenuRoute,
-      component: () => require(`${t.MenuPath}`),
+      component: (resolve) => require([`@/views/${t.MenuPath}`],resolve),
       hidden: t.IsHidden === 1,
       meta: {
         title: t.MenuName,
@@ -153,7 +153,7 @@ function CreateChildrenMenuRouteNode(DataSource, ParentRouteNode) {
     if (t.IsLayout) {
       t.component = Layout
     } else {
-      t.component = () => require(`${t.MenuPath}`)
+      t.component = (resolve) => require([`@/views/${t.MenuPath}`],resolve)
     }
     CreateChildrenMenuRouteNode(DataSource, ChildrenRoteNode)
     ParentRouteNode.children.push(ChildrenRoteNode)
