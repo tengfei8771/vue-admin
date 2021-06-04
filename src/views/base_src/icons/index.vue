@@ -41,7 +41,7 @@
 
 <script>
 import clipboard from '@/utils/clipboard'
-import svgIcons from './svg-icons'
+import svgIcons from '@/views/base_src/icons/svg-icons'
 import elementIcons from './element-icons'
 
 export default {

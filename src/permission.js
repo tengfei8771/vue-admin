@@ -54,6 +54,7 @@ router.beforeEach(async(to, from, next) => {
           // const accessRoutes = await store.dispatch('permission/generateRoutes', roles)
           await store.dispatch('menu/getMenu', userinfo.ID)
           const accessRoutes = store.getters.menuinfo
+          console.log(accessRoutes)
           // dynamically add accessible routes
           router.addRoutes(accessRoutes)
           // hack method to ensure that addRoutes is complete
@@ -73,13 +74,12 @@ router.beforeEach(async(to, from, next) => {
     }
   } else {
     /* has no token*/
-
     if (whiteList.indexOf(to.path) !== -1) {
       // in the free login whitelist, go directly
       next()
     } else {
       // other pages that do not have permission to access are redirected to the login page.
-      // next(`/login?redirect=${to.path}`)
+       next(`/login?redirect=${to.path}`)
       NProgress.done()
     }
   }

@@ -12,7 +12,7 @@
         :collapse-transition="false"
         mode="vertical"
       >
-        <sidebar-item v-for="route in menuinfo" :key="route.path" :item="route" :base-path="route.path" />
+        <sidebar-item v-for="route in rendermenu" :key="route.path" :item="route" :base-path="route.path" />
       </el-menu>
     </el-scrollbar>
   </div>
@@ -28,7 +28,7 @@ export default {
   components: { SidebarItem, Logo },
   computed: {
     ...mapGetters([
-      'menuinfo',
+      'rendermenu',//渲染用的路由 假路由
       'sidebar'
     ]),
     activeMenu() {
