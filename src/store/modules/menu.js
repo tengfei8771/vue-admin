@@ -7,7 +7,9 @@ import Layout from '@/layout'
 import {
   getMenubyRole
 } from '@/api/menu'
-import { constantRoutes } from '@/router'
+import {
+  constantRoutes
+} from '@/router'
 const state = {
   menuinfo: null,
   rendermenu: null
@@ -30,7 +32,7 @@ const actions = {
       }).then(res => {
         if (res.code === 2000) {
           // 真实的路由
-          let renderMenuTree = CreateRealParentMenuRouteNode(res.items)
+          let renderMenuTree = CreateRenderMenuParentNode(res.items)
           let realMenuTree = CreateRealParentMenuRouteNode(res.items)
           commit('SET_MENUINFO', constantRoutes.concat(realMenuTree))
           commit('SET_RENDERMENUINFO', constantRoutes.concat(renderMenuTree))
@@ -50,7 +52,7 @@ function CreateRenderMenuParentNode(DataSource) {
     let ParentRouteNode = {
       MenuID: t.ID,
       path: t.MenuRoute,
-      name:t.MenuName,
+      name: t.MenuName,
       // path = t.MenuPath,
       // component: Layout,
       hidden: t.IsHidden === 1,
@@ -68,12 +70,11 @@ function CreateRenderMenuParentNode(DataSource) {
 
 function CreateRenderMenuChildrenNode(DataSource, ParentRouteNode) {
   DataSource.filter(t => t.MenuParentID === ParentRouteNode.MenuID && t.IsUse === 1).forEach(t => {
-
     let ChildrenRoteNode = {
       MenuID: t.ID,
       hidden: t.IsHidden === 1,
       path: t.MenuRoute,
-      name:t.MenuName,
+      name: t.MenuName,
       children: [],
       meta: {
         title: t.MenuName,
@@ -94,7 +95,7 @@ function CreateRealParentMenuRouteNode(DataSource) {
       MenuID: t.ID,
       path: t.MenuRoute,
       component: Layout,
-      name:t.MenuName,
+      name: t.MenuName,
       hidden: t.IsHidden === 1,
       meta: {
         title: t.MenuName,
@@ -110,7 +111,7 @@ function CreateRealParentMenuRouteNode(DataSource) {
     MenuID: 'YZDesign',
     path: 'YZDesign',
     component: Layout,
-    name:'yz',
+    name: 'yz',
     hidden: true,
     children: []
   }
@@ -126,7 +127,7 @@ function CreateRealParentMenuRouteNode(DataSource) {
         icon: t.MenuIcon
       },
       children: [],
-      name:t.MenuName,
+      name: t.MenuName
     }
     NotRenderMenu.children.push(Node)
   })
@@ -147,7 +148,7 @@ function CreateChildrenMenuRouteNode(DataSource, ParentRouteNode) {
         title: t.MenuName,
         icon: t.MenuIcon
       },
-      name:t.MenuName,
+      name: t.MenuName
     }
     if (t.IsLayout) {
       t.component = Layout

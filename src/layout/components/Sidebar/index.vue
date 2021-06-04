@@ -28,7 +28,7 @@ export default {
   components: { SidebarItem, Logo },
   computed: {
     ...mapGetters([
-      'rendermenu',//渲染用的路由 假路由
+      'rendermenu', // 渲染用的路由 假路由
       'sidebar'
     ]),
     activeMenu() {
