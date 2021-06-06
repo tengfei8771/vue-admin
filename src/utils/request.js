@@ -1,14 +1,8 @@
 import axios from 'axios'
-import {
-  MessageBox,
-  Message,
-  Notification,
-  Loading
-} from 'element-ui'
+import { MessageBox, Message, Notification, Loading } from 'element-ui'
 import store from '@/store'
-import {
-  getToken
-} from '@/utils/auth'
+import { getToken, getRefreshToken, setToken } from '@/utils/auth'
+import { refreshToken } from '@/api/user'
 
 // create an axios instance
 const service = axios.create({
@@ -16,6 +10,7 @@ const service = axios.create({
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout
 })
+// 遮罩层服务
 let loadingInstance
 // request interceptor
 service.interceptors.request.use(
@@ -49,7 +44,7 @@ function CreateMessageBox(message, messageTitle, type, func) {
     cancelButtonText: '取消',
     type: type
   }).then(() => {
-    if (typeof (func) === 'function') {
+    if (typeof func === 'function') {
       func()
     }
   })
@@ -63,6 +58,14 @@ function CreateNotify(message, title, type) {
     position: 'bottom-right'
   })
 }
+/**
+ * 下面的拦截器主要处理所有的请求返回显示,并且实现通过用refreashtoken刷新requettoken的功能
+ * 现在是所有的请求失败之后都会放到缓存队列中等待重新请求,后续可以考虑在发起请求时直接拦截，然后再发起请求
+ */
+// 是否正在刷新的标记
+let isRefreshing = false
+// 把所有正在刷新过程中进入的请求缓存到这里,等token刷新完成后再继续执行请求
+let retryRequests = []
 // response interceptor
 service.interceptors.response.use(
   /**
@@ -87,22 +90,37 @@ service.interceptors.response.use(
         })
         break
       case 50008:
-        CreateMessageBox(res.message, 'Confirm logout', 'warning', store.dispatch('user/resetToken').then(() => {
-          location.reload()
-        }))
+        CreateMessageBox(
+          res.message,
+          'Confirm logout',
+          'warning',
+          store.dispatch('user/resetToken').then(() => {
+            location.reload()
+          })
+        )
         break
       case 50012:
-        CreateMessageBox(res.message, 'Confirm logout', 'warning', store.dispatch('user/resetToken').then(() => {
-          location.reload()
-        }))
+        CreateMessageBox(
+          res.message,
+          'Confirm logout',
+          'warning',
+          store.dispatch('user/resetToken').then(() => {
+            location.reload()
+          })
+        )
         break
       case 50014:
-        CreateMessageBox(res.message, 'Confirm logout', 'warning', store.dispatch('user/resetToken').then(() => {
-          location.reload()
-        }))
+        CreateMessageBox(
+          res.message,
+          'Confirm logout',
+          'warning',
+          store.dispatch('user/resetToken').then(() => {
+            location.reload()
+          })
+        )
         break
       case 2000:
-        CreateNotify(res.message, '成功', 'success')
+        // CreateNotify(res.message, '成功', 'success')
         break
       case -1:
         CreateNotify(res.message, '失败', 'error')
@@ -112,42 +130,51 @@ service.interceptors.response.use(
     }
     loadingInstance.close()
     return res
-    // if (res.code === 50000) {
-    //   Message({
-    //     message: res.message || 'success',
-    //     type: 'success',
-    //     duration: 5 * 1000
-    //   })
-    // } else {
-    //   Message({
-    //     message: res.message || 'Error',
-    //     type: 'error',
-    //     duration: 5 * 1000
-    //   })
-    //   if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
-    //     // to re-login
-    //     MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
-    //       confirmButtonText: 'Re-Login',
-    //       cancelButtonText: 'Cancel',
-    //       type: 'warning'
-    //     }).then(() => {
-    //       store.dispatch('user/resetToken').then(() => {
-    //         location.reload()
-    //       })
-    //     })
-    //   }
-    //   return Promise.reject(new Error(res.message || 'Error'))
-    // }
-    // if the custom code is not 20000, it is judged as an error.
-    // if (res.code !== 2000) {
-
-    //   // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
-
-    // } else {
-    //   return res
-    // }
   },
   error => {
+    // 令牌过期
+    if (error.response.data.code === 50016) {
+      const config = error.config
+      if (!isRefreshing) {
+        isRefreshing = true
+        let temp = {
+          refreshToken: getRefreshToken()
+        }
+        refreshToken(temp)
+          .then(res => {
+            if (res.code === 60000) {
+              setToken(res.items)
+              // 获取token后立刻把刷新状态重置
+              isRefreshing = false
+            }
+          })
+          .catch(error => {
+            console.log('err' + error)
+          })
+          .then(() => {
+            // 然后执行队列所有的请求
+            retryRequests.forEach(cb => cb(getToken()))
+            // 清空队列
+            retryRequests = []
+            // 重新执行认证失败的请求
+            config.baseURL = ''
+
+            return service.request(config)
+          })
+      } else {
+        // 正在刷新状态吧所有的请求缓存
+        return new Promise(resolve => {
+          // 将resolve放进队列，用一个函数形式来保存，等token刷新后直接执行
+          // @ts-ignore
+          retryRequests.push(token => {
+            config.baseURL = ''
+            config.headers['Authorization'] = token
+            resolve(service.request(config))
+          })
+        })
+      }
+    }
+
     console.log('err' + error) // for debug
     loadingInstance.close()
     Message({

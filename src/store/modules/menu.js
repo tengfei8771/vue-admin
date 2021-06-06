@@ -4,12 +4,8 @@
  *  2.左侧菜单渲染的路由需要根据真实的数据结构进行递归
  */
 import Layout from '@/layout'
-import {
-  getMenubyRole
-} from '@/api/menu'
-import {
-  constantRoutes
-} from '@/router'
+import { getMenubyRole } from '@/api/menu'
+import { constantRoutes } from '@/router'
 const state = {
   menuinfo: null,
   rendermenu: null
@@ -23,24 +19,24 @@ const mutations = {
   }
 }
 const actions = {
-  getMenu({
-    commit
-  }, userId) {
+  getMenu({ commit }, userId) {
     return new Promise((resolve, reject) => {
       getMenubyRole({
         userId: userId
-      }).then(res => {
-        if (res.code === 2000) {
-          // 真实的路由
-          let renderMenuTree = CreateRenderMenuParentNode(res.items)
-          let realMenuTree = CreateRealParentMenuRouteNode(res.items)
-          commit('SET_MENUINFO', constantRoutes.concat(realMenuTree))
-          commit('SET_RENDERMENUINFO', constantRoutes.concat(renderMenuTree))
-          resolve()
-        }
-      }).catch(error => {
-        reject(error)
       })
+        .then(res => {
+          if (res.code === 2000) {
+            // 真实的路由
+            let renderMenuTree = CreateRenderMenuParentNode(res.items)
+            let realMenuTree = CreateRealParentMenuRouteNode(res.items)
+            commit('SET_MENUINFO', constantRoutes.concat(realMenuTree))
+            commit('SET_RENDERMENUINFO', constantRoutes.concat(renderMenuTree))
+            resolve()
+          }
+        })
+        .catch(error => {
+          reject(error)
+        })
     })
   }
 }
@@ -69,7 +65,9 @@ function CreateRenderMenuParentNode(DataSource) {
 }
 
 function CreateRenderMenuChildrenNode(DataSource, ParentRouteNode) {
-  DataSource.filter(t => t.MenuParentID === ParentRouteNode.MenuID && t.IsUse === 1).forEach(t => {
+  DataSource.filter(
+    t => t.MenuParentID === ParentRouteNode.MenuID && t.IsUse === 1
+  ).forEach(t => {
     let ChildrenRoteNode = {
       MenuID: t.ID,
       hidden: t.IsHidden === 1,
@@ -80,6 +78,10 @@ function CreateRenderMenuChildrenNode(DataSource, ParentRouteNode) {
         title: t.MenuName,
         icon: t.MenuIcon
       }
+    }
+    if (t.MenuPath) {
+      let MenuArr = t.MenuPath.split('/')
+      ChildrenRoteNode.name = MenuArr[MenuArr.length - 1]
     }
     CreateChildrenMenuRouteNode(DataSource, ChildrenRoteNode)
     ParentRouteNode.children.push(ChildrenRoteNode)
@@ -116,11 +118,13 @@ function CreateRealParentMenuRouteNode(DataSource) {
     children: []
   }
   // 非父节点,使用的节点,不渲染上级的节点
-  DataSource.filter(t => t.MenuParentID !== 0 && t.IsRender === 0 && t.IsUse === 1).forEach(t => {
+  DataSource.filter(
+    t => t.MenuParentID !== 0 && t.IsRender === 0 && t.IsUse === 1
+  ).forEach(t => {
     let Node = {
       MenuID: t.ID,
       path: t.MenuRoute,
-      component: (resolve) => require([`@/views/${t.MenuPath}`],resolve),
+      component: resolve => require([`@/views/${t.MenuPath}`], resolve),
       hidden: t.IsHidden === 1,
       meta: {
         title: t.MenuName,
@@ -128,6 +132,10 @@ function CreateRealParentMenuRouteNode(DataSource) {
       },
       children: [],
       name: t.MenuName
+    }
+    if (t.MenuPath) {
+      let MenuArr = t.MenuPath.split('/')
+      Node.name = MenuArr[MenuArr.length - 1]
     }
     NotRenderMenu.children.push(Node)
   })
@@ -138,7 +146,12 @@ function CreateRealParentMenuRouteNode(DataSource) {
 // 递归渲染上级的子节点
 function CreateChildrenMenuRouteNode(DataSource, ParentRouteNode) {
   // 子节点正常递归
-  DataSource.filter(t => t.MenuParentID === ParentRouteNode.MenuID && t.IsRender === 1 && t.IsUse === 1).forEach(t => {
+  DataSource.filter(
+    t =>
+      t.MenuParentID === ParentRouteNode.MenuID &&
+      t.IsRender === 1 &&
+      t.IsUse === 1
+  ).forEach(t => {
     let ChildrenRoteNode = {
       MenuID: t.ID,
       hidden: t.IsHidden === 1,
@@ -153,7 +166,11 @@ function CreateChildrenMenuRouteNode(DataSource, ParentRouteNode) {
     if (t.IsLayout) {
       t.component = Layout
     } else {
-      t.component = (resolve) => require([`@/views/${t.MenuPath}`],resolve)
+      t.component = resolve => require([`@/views/${t.MenuPath}`], resolve)
+    }
+    if (t.MenuPath) {
+      let MenuArr = t.MenuPath.split('/')
+      ChildrenRoteNode.name = MenuArr[MenuArr.length - 1]
     }
     CreateChildrenMenuRouteNode(DataSource, ChildrenRoteNode)
     ParentRouteNode.children.push(ChildrenRoteNode)

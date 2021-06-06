@@ -13,7 +13,12 @@ export default {
   name: 'AppMain',
   computed: {
     cachedViews() {
-      return this.$store.state.tagsView.cachedViews
+      // 开发阶段不缓存任何界面 因为不会触发热更新
+      if (process.env.NODE_ENV === 'development') {
+        return []
+      } else {
+        return this.$store.state.tagsView.cachedViews
+      }
     },
     key() {
       return this.$route.path
@@ -31,7 +36,7 @@ export default {
   overflow: hidden;
 }
 
-.fixed-header+.app-main {
+.fixed-header + .app-main {
   padding-top: 50px;
 }
 
@@ -41,7 +46,7 @@ export default {
     min-height: calc(100vh - 84px);
   }
 
-  .fixed-header+.app-main {
+  .fixed-header + .app-main {
     padding-top: 84px;
   }
 }

@@ -121,7 +121,8 @@ export const constantRoutes = [
         meta: { title: 'profile', icon: 'user', noCache: true }
       }
     ]
-  }
+  },
+  tableRouter
 ]
 
 /**
