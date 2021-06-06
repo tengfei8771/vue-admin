@@ -20,7 +20,7 @@
         style="width: 100%"
         element-loading-text="给我一点时间"
         :header-cell-class-name="tableRowClassName"
-        lazy
+lazy
         row-key="ID"
         :load="load"
       >
@@ -34,10 +34,26 @@
           </template>
         </el-table-column>
         <el-table-column label="菜单序号" prop="MenuSortNo" />
-        <el-table-column label="是否启用" prop="IsUse" />
-        <el-table-column label="是否显示" prop="IsHidden" />
-        <el-table-column label="是否渲染上级" prop="IsRender" />
-        <el-table-column label="是否无页面" prop="IsLayout" />
+        <el-table-column label="是否启用">
+          <template slot-scope="scope">
+            {{ scope.row.IsUse|changeSate }}
+          </template>
+        </el-table-column>
+        <el-table-column label="是否显示">
+          <template slot-scope="scope">
+            {{ scope.row.IsHidden|changeSate }}
+          </template>
+        </el-table-column>
+        <el-table-column label="是否渲染上级">
+          <template slot-scope="scope">
+            {{ scope.row.IsRender|changeSate }}
+          </template>
+        </el-table-column>
+        <el-table-column label="是否无页面">
+          <template slot-scope="scope">
+            {{ scope.row.IsLayout|changeSate }}
+          </template>
+        </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-dropdown>
@@ -68,19 +84,19 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="110px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="菜单名称">
+            <el-form-item label="菜单名称" prop="MenuName">
               <el-input v-model="form.MenuName" :size="size" placeholder="请输入菜单名称" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="父级菜单">
-              <el-cascader v-model="form.ParentMenuID" :size="size" :options="parentSelectOption" placeholder="请选择父级菜单" :props="parentSelectProp" :show-all-levels="false" style="width:100%" />
+              <el-cascader v-model="form.MenuParentID" :size="size" :options="parentSelectOption" placeholder="请选择父级菜单" :props="parentSelectProp" :show-all-levels="false" style="width:100%" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="菜单路由">
+            <el-form-item label="菜单路由" prop="MenuRoute">
               <el-input v-model="form.MenuRoute" :size="size" placeholder="请输入菜单路由" />
             </el-form-item>
           </el-col>
@@ -94,10 +110,11 @@
           <el-col :span="12">
             <el-form-item label="菜单图标">
               <el-row>
-                <el-col :span="18">
+                <el-col :span="16">
+                  <!-- <i :class="`el-icon-${form.MenuIcon}`" v-if="form.MenuIcon"></i> -->
                   <el-input v-model="form.MenuIcon" :size="size" placeholder="请选择图标" readonly />
                 </el-col>
-                <el-col :span="6">
+                <el-col :span="6" :offset="2">
                   <el-button type="primary" :size="size" @click="drawer=true">选择图标</el-button>
                 </el-col>
               </el-row>
@@ -105,21 +122,21 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="菜单序号">
-              <el-input v-model="form.MenuPath" :size="size" placeholder="请输入菜单序号" />
+              <el-input v-model="form.MenuSortNo" :size="size" placeholder="请输入菜单序号" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
 
           <el-col :span="12">
-            <el-form-item label="是否启用">
+            <el-form-item label="是否启用" prop="IsUse">
               <el-select v-model="form.IsUse" :size="size" style="width:100%">
                 <el-option v-for="(item,key) in selectOptions" :key="key" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="是否显示">
+            <el-form-item label="是否显示" prop="IsHidden">
               <el-select v-model="form.IsHidden" :size="size" style="width:100%">
                 <el-option v-for="(item,key) in selectOptions" :key="key" :label="item.label" :value="item.value" />
               </el-select>
@@ -130,14 +147,14 @@
         <el-row>
 
           <el-col :span="12">
-            <el-form-item label="是否渲染">
+            <el-form-item label="是否渲染上级页面" prop="IsRender">
               <el-select v-model="form.IsRender" :size="size" style="width:100%">
                 <el-option v-for="(item,key) in selectOptions" :key="key" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="是否渲染页面">
+            <el-form-item label="是否为无页面菜单">
               <el-select v-model="form.IsLayout" :size="size" style="width:100%">
                 <el-option v-for="(item,key) in selectOptions" :key="key" :label="item.label" :value="item.value" />
               </el-select>
@@ -160,11 +177,20 @@
 <script>
 import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
-import { GetMenu, CreateMenu, UpdateMenu, DeleteMenu } from '@/api/menu'
+import { getMenu, createMenu, updateMenu, deleteMenu } from '@/api/menu'
 import iconSelectComponent from '@/views/frame_src/components/iconSelectComponent'
 export default {
   name: 'Menuinfo',
   components: { iconSelectComponent },
+  filters: {
+    changeSate(val) {
+      if (val === 0) {
+        return '否'
+      } else if (val === 1) {
+        return '是'
+      }
+    }
+  },
   data() {
     return {
       listQuery: {
@@ -232,7 +258,7 @@ export default {
             page: 1,
             limit: 10000
           }
-          GetMenu(temp).then((res) => {
+          getMenu(temp).then((res) => {
             if (res.items != null) {
               resolve(res.items)
             } else {
@@ -270,6 +296,7 @@ export default {
   beforeDestroy() { },
   destroyed() { },
   activated() { },
+
   methods: {
     tableRowClassName({ row, rowIndex }) {
       if (rowIndex === 0) {
@@ -278,7 +305,7 @@ export default {
       return ''
     },
     getList() {
-      GetMenu(this.listQuery).then((res) => {
+      getMenu(this.listQuery).then((res) => {
         this.tableData = res.items
         this.parentSelectOption = res.items
         this.total = res.total
@@ -287,10 +314,17 @@ export default {
     submit() {
       this.$refs.form.validate((valid) => {
         if (valid) {
+          if (this.form.MenuParentID != null) {
+            this.form.MenuParentID = this.form.MenuParentID[0]
+          }
           if (this.title === '新增') {
-            CreateMenu(this.form)
+            createMenu(this.form).then(res => {
+              this.dialogState = false
+            })
           } else {
-            UpdateMenu(this.form)
+            updateMenu(this.form).then(res => {
+              this.dialogState = false
+            })
           }
         }
       })
@@ -354,7 +388,7 @@ export default {
         let temp = {
           ID: row.ID
         }
-        DeleteMenu(temp)
+        deleteMenu(temp)
       })
     },
     close() {
@@ -367,7 +401,7 @@ export default {
         page: 1,
         limit: 10000
       }
-      GetMenu(temp).then((res) => {
+      getMenu(temp).then((res) => {
         if (res.items != null) {
           return res.items
         } else {
@@ -381,7 +415,7 @@ export default {
         page: 1,
         limit: 10000
       }
-      GetMenu(temp).then((res) => {
+      getMenu(temp).then((res) => {
         if (res.items != null) {
           resolve(res.items)
         } else {

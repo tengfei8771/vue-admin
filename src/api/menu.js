@@ -7,7 +7,7 @@ export function getMenubyRole(data) {
   })
 }
 
-export function GetMenu(data) {
+export function getMenu(data) {
   return request({
     url: 'menu',
     method: 'get',
@@ -15,21 +15,21 @@ export function GetMenu(data) {
   })
 }
 
-export function CreateMenu(data) {
+export function createMenu(data) {
   return request({
     url: '/menu',
     method: 'post',
     data: data
   })
 }
-export function UpdateMenu(data) {
+export function updateMenu(data) {
   return request({
     url: '/menu',
     method: 'put',
     data: data
   })
 }
-export function DeleteMenu(data) {
+export function deleteMenu(data) {
   return request({
     url: '/menu',
     method: 'put',

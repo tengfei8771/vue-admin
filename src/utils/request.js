@@ -119,8 +119,8 @@ service.interceptors.response.use(
           })
         )
         break
-      case 2000:
-        // CreateNotify(res.message, '成功', 'success')
+      case 2001:
+        CreateNotify(res.message, '成功', 'success')
         break
       case -1:
         CreateNotify(res.message, '失败', 'error')
@@ -168,7 +168,7 @@ service.interceptors.response.use(
           // @ts-ignore
           retryRequests.push(token => {
             config.baseURL = ''
-            config.headers['Authorization'] = token
+            config.headers['Bear'] = token
             resolve(service.request(config))
           })
         })
