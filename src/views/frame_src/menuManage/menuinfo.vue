@@ -20,7 +20,7 @@
         style="width: 100%"
         element-loading-text="给我一点时间"
         :header-cell-class-name="tableRowClassName"
-lazy
+        lazy
         row-key="ID"
         :load="load"
       >
