@@ -20,11 +20,11 @@
         style="width: 100%"
         element-loading-text="给我一点时间"
         :header-cell-class-name="tableRowClassName"
-lazy
+        lazy
         row-key="ID"
         :load="load"
       >
-        <el-table-column label="菜单ID" prop="ID" />
+        <!-- <el-table-column label="菜单ID" prop="ID" /> -->
         <el-table-column label="菜单名称" prop="MenuName" />
         <el-table-column label="菜单路由" prop="MenuRoute" />
         <el-table-column label="菜单路径" prop="MenuPath" />
@@ -259,8 +259,8 @@ export default {
             limit: 10000
           }
           getMenu(temp).then((res) => {
-            if (res.items != null) {
-              resolve(res.items)
+            if (res.data.items != null) {
+              resolve(res.data.items)
             } else {
               resolve([])
             }
@@ -306,9 +306,9 @@ export default {
     },
     getList() {
       getMenu(this.listQuery).then((res) => {
-        this.tableData = res.items
-        this.parentSelectOption = res.items
-        this.total = res.total
+        this.tableData = res.data.items
+        this.parentSelectOption = res.data.items
+        this.total = res.data.total
       })
     },
     submit() {
@@ -402,8 +402,8 @@ export default {
         limit: 10000
       }
       getMenu(temp).then((res) => {
-        if (res.items != null) {
-          return res.items
+        if (res.data.items != null) {
+          return res.data.items
         } else {
           return []
         }
@@ -416,8 +416,8 @@ export default {
         limit: 10000
       }
       getMenu(temp).then((res) => {
-        if (res.items != null) {
-          resolve(res.items)
+        if (res.data.items != null) {
+          resolve(res.data.items)
         } else {
           resolve([])
         }

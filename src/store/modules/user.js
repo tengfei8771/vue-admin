@@ -64,7 +64,7 @@ const actions = {
         pwd: password
       })
         .then(response => {
-          const data = response
+          const data = response.data
           if (data.code === 50000) {
             let tokenArr = data.items
             let requestToken = tokenArr.RequestToken

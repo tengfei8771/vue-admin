@@ -25,10 +25,10 @@ const actions = {
         userId: userId
       })
         .then(res => {
-          if (res.code === 2000) {
+          if (res.data.code === 2000) {
             // 真实的路由
-            let renderMenuTree = CreateRenderMenuParentNode(res.items)
-            let realMenuTree = CreateRealParentMenuRouteNode(res.items)
+            let renderMenuTree = CreateRenderMenuParentNode(res.data.items)
+            let realMenuTree = CreateRealParentMenuRouteNode(res.data.items)
             commit('SET_MENUINFO', constantRoutes.concat(realMenuTree))
             commit('SET_RENDERMENUINFO', constantRoutes.concat(renderMenuTree))
             resolve()

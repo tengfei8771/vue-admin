@@ -129,7 +129,8 @@ service.interceptors.response.use(
         break
     }
     loadingInstance.close()
-    return res
+    console.log(response)
+    return response
   },
   error => {
     // 令牌过期
@@ -142,13 +143,14 @@ service.interceptors.response.use(
         }
         refreshToken(temp)
           .then(res => {
-            if (res.code === 60000) {
-              setToken(res.items)
+            if (res.data.code === 60000) {
+              setToken(res.data.items)
               // 获取token后立刻把刷新状态重置
               isRefreshing = false
             }
           })
           .catch(error => {
+            // 获取token失败强制下线
             console.log('err' + error)
           })
           .then(() => {
@@ -181,8 +183,8 @@ service.interceptors.response.use(
         type: 'error',
         duration: 5 * 1000
       })
+      // return Promise.reject(error)
     }
-    return Promise.reject(error)
   }
 )
 
