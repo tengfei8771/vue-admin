@@ -416,11 +416,14 @@ export default {
         limit: 10000
       }
       getMenu(temp).then((res) => {
+        console.log(res)
         if (res.data.items != null) {
           resolve(res.data.items)
         } else {
           resolve([])
         }
+      }).catch(error => {
+        console.log(error)
       })
     },
     getIcon(iconClassName) {

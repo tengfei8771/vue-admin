@@ -129,7 +129,6 @@ service.interceptors.response.use(
         break
     }
     loadingInstance.close()
-    console.log(response)
     return response
   },
   error => {
@@ -147,22 +146,20 @@ service.interceptors.response.use(
               setToken(res.data.items)
               // 获取token后立刻把刷新状态重置
               isRefreshing = false
+              // 然后执行队列所有的请求
+              retryRequests.forEach(cb => cb(getToken()))
+              // 清空队列
+              retryRequests = []
+              // 重新执行认证失败的请求
+              config.baseURL = ''
+              return service.request(config)
             }
           })
           .catch(error => {
             // 获取token失败强制下线
             console.log('err' + error)
           })
-          .then(() => {
-            // 然后执行队列所有的请求
-            retryRequests.forEach(cb => cb(getToken()))
-            // 清空队列
-            retryRequests = []
-            // 重新执行认证失败的请求
-            config.baseURL = ''
-
-            return service.request(config)
-          })
+          .then(() => {})
       } else {
         // 正在刷新状态吧所有的请求缓存
         return new Promise(resolve => {
