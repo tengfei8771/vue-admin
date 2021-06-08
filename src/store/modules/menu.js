@@ -38,6 +38,12 @@ const actions = {
           reject(error)
         })
     })
+  },
+  setMenu({ commit }, menuinfo) {
+    commit('SET_MENUINFO', menuinfo)
+  },
+  setRenderMenu({ commit }, renderMenuinfo) {
+    commit('SET_RENDERMENUINFO', renderMenuinfo)
   }
 }
 // 构造左侧菜单显示的菜单数据

@@ -287,7 +287,7 @@ export default {
   watch: {},
   created() { },
   mounted() {
-    // this.getList()
+    this.getList()
   },
   beforeCreate() { },
   beforeMount() { },

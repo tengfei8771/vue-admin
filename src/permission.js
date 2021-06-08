@@ -41,6 +41,7 @@ router.beforeEach(async(to, from, next) => {
         getUserinfo()
       }
       const hasMenu = store.getters.menuinfo !== null
+      console.log(hasMenu)
       if (hasMenu) {
         next()
       } else {
