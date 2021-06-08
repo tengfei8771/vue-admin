@@ -140,12 +140,10 @@ service.interceptors.response.use(
         let temp = {
           refreshToken: getRefreshToken()
         }
-        refreshToken(temp)
+        return refreshToken(temp)
           .then(res => {
             if (res.data.code === 60000) {
               setToken(res.data.items)
-              // 获取token后立刻把刷新状态重置
-              isRefreshing = false
               // 然后执行队列所有的请求
               retryRequests.forEach(cb => cb(getToken()))
               // 清空队列
@@ -159,7 +157,10 @@ service.interceptors.response.use(
             // 获取token失败强制下线
             console.log('err' + error)
           })
-          .then(() => {})
+          .finally(() => {
+            // 获取token后立刻把刷新状态重置
+            isRefreshing = false
+          })
       } else {
         // 正在刷新状态吧所有的请求缓存
         return new Promise(resolve => {

@@ -287,7 +287,7 @@ export default {
   watch: {},
   created() { },
   mounted() {
-    this.getList()
+    // this.getList()
   },
   beforeCreate() { },
   beforeMount() { },
@@ -415,7 +415,7 @@ export default {
         page: 1,
         limit: 10000
       }
-      getMenu(temp).then((res) => {
+      getMenu(temp).then(res => {
         console.log(res)
         if (res.data.items != null) {
           resolve(res.data.items)
