@@ -90,7 +90,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="父级菜单">
-              <el-cascader v-model="form.MenuParentID" :size="size" :options="parentSelectOption" placeholder="请选择父级菜单" :props="parentSelectProp" :show-all-levels="false" style="width:100%" />
+              <el-cascader v-model="form.MenuParentID" :size="size" :options="parentSelectOption" placeholder="请选择父级菜单" :props="parentSelectProp" :show-all-levels="false" style="width:100%" @change="getNode" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -177,7 +177,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
-import { getMenu, createMenu, updateMenu, deleteMenu } from '@/api/menu'
+import { getMenu, createMenu, updateMenu, deleteMenu, getMenuTree } from '@/api/menu'
 import iconSelectComponent from '@/views/frame_src/components/iconSelectComponent'
 export default {
   name: 'Menuinfo',
@@ -250,22 +250,23 @@ export default {
       parentSelectProp: {
         value: 'ID',
         label: 'MenuName',
-        lazy: true,
+        // lazy: true,
         checkStrictly: true,
-        lazyLoad(node, resolve) {
-          let temp = {
-            ParentMenuID: node.data.ID,
-            page: 1,
-            limit: 10000
-          }
-          getMenu(temp).then((res) => {
-            if (res.data.items != null) {
-              resolve(res.data.items)
-            } else {
-              resolve([])
-            }
-          })
-        }
+        emitPath: false
+        // lazyLoad(node, resolve) {
+        //   let temp = {
+        //     ParentMenuID: node.data.ID,
+        //     page: 1,
+        //     limit: 10000
+        //   }
+        //   getMenu(temp).then((res) => {
+        //     if (res.data.items != null) {
+        //       resolve(res.data.items)
+        //     } else {
+        //       resolve([])
+        //     }
+        //   })
+        // }
       }
     }
   },
@@ -287,6 +288,7 @@ export default {
   watch: {},
   created() { },
   mounted() {
+    this.getOptions()
     this.getList()
   },
   beforeCreate() { },
@@ -304,25 +306,28 @@ export default {
       }
       return ''
     },
+    getOptions() {
+      getMenuTree().then((res) => {
+        this.parentSelectOption = res.data.items
+      })
+    },
     getList() {
       getMenu(this.listQuery).then((res) => {
         this.tableData = res.data.items
-        this.parentSelectOption = res.data.items
         this.total = res.data.total
       })
     },
     submit() {
       this.$refs.form.validate((valid) => {
         if (valid) {
-          if (this.form.MenuParentID != null) {
-            this.form.MenuParentID = this.form.MenuParentID[0]
-          }
+          let temp = Object.assign({}, this.form)
+          console.log(temp)
           if (this.title === '新增') {
-            createMenu(this.form).then(res => {
+            createMenu(temp).then(res => {
               this.dialogState = false
             })
           } else {
-            updateMenu(this.form).then(res => {
+            updateMenu(temp).then(res => {
               this.dialogState = false
             })
           }
@@ -429,6 +434,9 @@ export default {
     getIcon(iconClassName) {
       this.drawer = false
       this.form.MenuIcon = iconClassName
+    },
+    getNode(node) {
+      console.log(node, this.form.MenuParentID)
     }
   }
 }

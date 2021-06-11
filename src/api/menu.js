@@ -14,6 +14,12 @@ export function getMenu(data) {
     params: data
   })
 }
+export function getMenuTree() {
+  return request({
+    url: 'menu/GetMenuTree',
+    method: 'get'
+  })
+}
 
 export function createMenu(data) {
   return request({
