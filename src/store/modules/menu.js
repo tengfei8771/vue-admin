@@ -4,7 +4,7 @@
  *  2.左侧菜单渲染的路由需要根据真实的数据结构进行递归
  */
 import Layout from '@/layout'
-import { getMenubyRole } from '@/api/menu'
+import { getMenubyUser } from '@/api/menu'
 import { constantRoutes } from '@/router'
 const state = {
   menuinfo: null,
@@ -21,7 +21,7 @@ const mutations = {
 const actions = {
   getMenu({ commit }, userId) {
     return new Promise((resolve, reject) => {
-      getMenubyRole({
+      getMenubyUser({
         userId: userId
       })
         .then(res => {
@@ -50,7 +50,9 @@ const actions = {
 function CreateRenderMenuParentNode(DataSource) {
   let Menu = []
   // 找父ID为0且使用的菜单数据
-  DataSource.filter(t => t.MenuParentID === 0 && t.IsUse === 1).forEach(t => {
+  DataSource.filter(
+    t => (t.MenuParentID === '0' || t.MenuParentID === null) && t.IsUse === 1
+  ).forEach(t => {
     let ParentRouteNode = {
       MenuID: t.ID,
       path: t.MenuRoute,
@@ -98,7 +100,9 @@ function CreateRenderMenuChildrenNode(DataSource, ParentRouteNode) {
 function CreateRealParentMenuRouteNode(DataSource) {
   let Menu = []
   // 找父ID为0且使用的菜单数据
-  DataSource.filter(t => t.MenuParentID === 0 && t.IsUse === 1).forEach(t => {
+  DataSource.filter(
+    t => t.MenuParentID === '0' && t.MenuParentID === null && t.IsUse === 1
+  ).forEach(t => {
     let ParentRouteNode = {
       MenuID: t.ID,
       path: t.MenuRoute,

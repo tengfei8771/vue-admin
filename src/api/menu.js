@@ -1,7 +1,14 @@
 import request from '@/utils/request'
+export function getMenubyUser(data) {
+  return request({
+    url: 'menu/GetMenuByUserId',
+    method: 'get',
+    params: data
+  })
+}
 export function getMenubyRole(data) {
   return request({
-    url: 'menu/GetMenubyRole',
+    url: 'menu/GetMenuByRoleId',
     method: 'get',
     params: data
   })
@@ -38,7 +45,7 @@ export function updateMenu(data) {
 export function deleteMenu(data) {
   return request({
     url: '/menu',
-    method: 'put',
+    method: 'delete',
     params: data
   })
 }

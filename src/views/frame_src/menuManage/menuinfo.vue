@@ -2,7 +2,7 @@
   <div id="menuinfo" class="app-container calendar-list-container">
     <el-row style="margin-bottom:5px" :gutter="20">
       <el-col :span="3">
-        <el-input v-model="listQuery.test" :size="size" placeholder="请输入" />
+        <!-- <el-input v-model="listQuery.test" :size="size" placeholder="请输入" /> -->
       </el-col>
       <el-col :span="6">
         <el-button :size="size" type="primary" icon="el-icon-search" @click="getList">搜索</el-button>
@@ -28,33 +28,33 @@
         <el-table-column label="菜单名称" prop="MenuName" />
         <el-table-column label="菜单路由" prop="MenuRoute" />
         <el-table-column label="菜单路径" prop="MenuPath" />
-        <el-table-column label="菜单图标" align="center">
+        <el-table-column label="菜单图标" align="center" width="80">
           <template slot-scope="scope">
-            <span><i v-if="scope.row.MenuIcon!=null" :class="`el-icon-${scope.row.MenuIcon}`" /></span>
+            <span><i v-if="scope.row.MenuIcon!=null" :class="`${scope.row.MenuIcon}`" /></span>
           </template>
         </el-table-column>
-        <el-table-column label="菜单序号" prop="MenuSortNo" />
-        <el-table-column label="是否启用">
+        <el-table-column label="菜单序号" prop="MenuSortNo" width="80" align="center" />
+        <el-table-column label="是否启用" width="80" align="center">
           <template slot-scope="scope">
             {{ scope.row.IsUse|changeSate }}
           </template>
         </el-table-column>
-        <el-table-column label="是否显示">
+        <el-table-column label="是否隐藏" width="80" align="center">
           <template slot-scope="scope">
             {{ scope.row.IsHidden|changeSate }}
           </template>
         </el-table-column>
-        <el-table-column label="是否渲染上级">
+        <el-table-column label="是否渲染上级" width="120" align="center">
           <template slot-scope="scope">
             {{ scope.row.IsRender|changeSate }}
           </template>
         </el-table-column>
-        <el-table-column label="是否无页面">
+        <el-table-column label="是否无页面" width="120" align="center">
           <template slot-scope="scope">
             {{ scope.row.IsLayout|changeSate }}
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" align="center" width="160">
           <template slot-scope="scope">
             <el-dropdown>
               <el-button type="primary">
@@ -136,7 +136,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="是否显示" prop="IsHidden">
+            <el-form-item label="是否隐藏" prop="IsHidden">
               <el-select v-model="form.IsHidden" :size="size" style="width:100%">
                 <el-option v-for="(item,key) in selectOptions" :key="key" :label="item.label" :value="item.value" />
               </el-select>
@@ -147,14 +147,14 @@
         <el-row>
 
           <el-col :span="12">
-            <el-form-item label="是否渲染上级页面" prop="IsRender">
+            <el-form-item label="渲染上级页面" prop="IsRender">
               <el-select v-model="form.IsRender" :size="size" style="width:100%">
                 <el-option v-for="(item,key) in selectOptions" :key="key" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="是否为无页面菜单">
+            <el-form-item label="无页面菜单">
               <el-select v-model="form.IsLayout" :size="size" style="width:100%">
                 <el-option v-for="(item,key) in selectOptions" :key="key" :label="item.label" :value="item.value" />
               </el-select>
@@ -213,9 +213,9 @@ export default {
         MenuIcon: null,
         MenuSortNo: null,
         IsUse: 1,
-        IsHidden: 1,
+        IsHidden: 0,
         IsRender: 0,
-        IsLayout: 1
+        IsLayout: 0
       },
       rules: {
         MenuName: [
@@ -325,10 +325,12 @@ export default {
           if (this.title === '新增') {
             createMenu(temp).then(res => {
               this.dialogState = false
+              this.getList()
             })
           } else {
             updateMenu(temp).then(res => {
               this.dialogState = false
+              this.getList()
             })
           }
         }
@@ -343,9 +345,9 @@ export default {
         MenuIcon: null,
         MenuSortNo: null,
         IsUse: 1,
-        IsHidden: 1,
+        IsHidden: 0,
         IsRender: 0,
-        IsLayout: 1
+        IsLayout: 0
       }
     },
     handleCreate() {
@@ -394,6 +396,7 @@ export default {
           ID: row.ID
         }
         deleteMenu(temp)
+        this.getList()
       })
     },
     close() {
@@ -433,7 +436,7 @@ export default {
     },
     getIcon(iconClassName) {
       this.drawer = false
-      this.form.MenuIcon = iconClassName
+      this.form.MenuIcon = `el-icon-${iconClassName}`
     },
     getNode(node) {
       console.log(node, this.form.MenuParentID)
