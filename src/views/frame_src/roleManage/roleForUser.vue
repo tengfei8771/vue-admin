@@ -1,5 +1,5 @@
 <template>
-  <div id="roleinfo" class="app-container calendar-list-container">
+  <div id="roleForUser" class="app-container calendar-list-container">
     <el-row style="margin-bottom:5px" :gutter="20">
       <el-col :span="6">
         <el-button :size="size" type="primary" icon="el-icon-search" @click="getList">搜索</el-button>
@@ -45,7 +45,7 @@
       <el-col :span="12">
         <el-card class="box-card">
           <div slot="header">授权菜单</div>
-          <el-tree ref="menuTree" :data="menuTree" show-checkbox node-key="ID" :props="defaultProps" />
+          <transferTableComponent />
           <div style="text-align:center">
             <el-button :size="size" type="primary" @click="submitRoleForMenu">授权</el-button>
           </div>
@@ -75,7 +75,6 @@
 <script>
 import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
-import { getMenuTree } from '@/api/menu'
 import {
   getRoles,
   deleteRole,
@@ -84,9 +83,10 @@ import {
   roleForMenu
 } from '@/api/role'
 import { getMenubyRole } from '@/api/menu'
+import transferTableComponent from '@/views/frame_src/components/transferTableComponent.vue'
 export default {
-  name: 'Roleinfo',
-  components: {},
+  name: 'RoleForUser',
+  components: { transferTableComponent },
   filters: {},
   data() {
     return {
@@ -137,7 +137,6 @@ export default {
   watch: {},
   created() {},
   mounted() {
-    this.getMenuTree()
     this.getList()
   },
   beforeCreate() {},
@@ -173,13 +172,6 @@ export default {
       this.roleForMenuForm.RoleID = row.ID
       getMenubyRole(temp).then((res) => {
         // this.$refs.menuTree.setCheckedKeys(res.data.items.MenuID,true)
-        res.data.items.MenuID.forEach((item) => {
-          var node = this.$refs.menuTree.getNode(item)
-          // 不是叶子节点不选
-          if (node.isLeaf) {
-            this.$refs.menuTree.setChecked(node, true)
-          }
-        })
       })
     },
     getList() {
@@ -187,11 +179,6 @@ export default {
       getRoles(this.listQuery).then((res) => {
         this.tableData = res.data.items
         this.total = res.data.total
-      })
-    },
-    getMenuTree() {
-      getMenuTree().then((res) => {
-        this.menuTree = res.data.items
       })
     },
     submit() {
@@ -216,9 +203,6 @@ export default {
     },
     submitRoleForMenu() {
       if (this.roleForMenuForm.RoleID) {
-        this.roleForMenuForm.MenuID = this.$refs.menuTree
-          .getCheckedKeys()
-          .concat(this.$refs.menuTree.getHalfCheckedKeys())
         console.log(this.roleForMenuForm)
         roleForMenu(this.roleForMenuForm)
       } else {
