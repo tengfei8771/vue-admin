@@ -60,6 +60,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
+import { getRoleAuthorized, getRoleNotAuthorized } from '@/api/user'
 export default {
   name: 'TransferTableComponent',
   components: {},
@@ -79,10 +80,17 @@ export default {
     return {
       data: generateData(),
       listQuery: {
+        roleId: '',
+        page: 1,
+        limit: 10
+      },
+      listQuery1: {
+        roleId: '',
         page: 1,
         limit: 10
       },
       tableData: [],
+      tableData1: [],
       dialogDisable: false,
       form: {},
       rules: {},
@@ -108,7 +116,6 @@ export default {
   watch: {},
   created() {},
   mounted() {
-    this.getList()
   },
   beforeCreate() {},
   beforeMount() {},
@@ -126,6 +133,18 @@ export default {
     },
     handleChange(value, direction, movedKeys) {
       console.log(value, direction, movedKeys)
+    },
+    getList() {
+      getRoleNotAuthorized(this.listQuery).then(res => {
+        this.tableData = res.data.items
+        this.total = res.data.total
+      })
+    },
+    getList1() {
+      getRoleAuthorized(this.listQuery1).then(res => {
+        this.tableData1 = res.data.items
+        this.total1 = res.data.total
+      })
     }
   }
 }

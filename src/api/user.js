@@ -44,7 +44,20 @@ export function deleteUserInfo(data) {
     params: data
   })
 }
-
+export function getRoleAuthorized(data) {
+  return request({
+    url: '/user/GetRoleAuthorized',
+    method: 'get',
+    params: data
+  })
+}
+export function getRoleNotAuthorized(data) {
+  return request({
+    url: '/user/GetRoleNotAuthorized',
+    method: 'get',
+    params: data
+  })
+}
 export function getInfo(token) {
   return request({
     url: '/vue-element-admin/user/info',
