@@ -9,6 +9,7 @@
     <el-row :gutter="20">
       <el-col :span="12">
         <el-card class="box-card">
+          <div slot="header">角色列表</div>
           <el-table ref="table" :data="tableData" border fit highlight-current-row stripe :size="size" style="width: 100%" element-loading-text="给我一点时间" :header-cell-class-name="tableRowClassName">
             <el-table-column width="50">
               <template slot-scope="scope">
@@ -44,7 +45,7 @@
       </el-col>
       <el-col :span="12">
         <el-card class="box-card">
-          <div slot="header">授权菜单</div>
+          <div slot="header">菜单授权</div>
           <el-tree ref="menuTree" :data="menuTree" show-checkbox node-key="ID" :props="defaultProps" />
           <div style="text-align:center">
             <el-button :size="size" type="primary" @click="submitRoleForMenu">授权</el-button>

@@ -56,3 +56,11 @@ export function roleForUser(data) {
     data
   })
 }
+
+export function cancelRoleForUser(data) {
+  return request({
+    url: '/Role/CancelRoleForUser',
+    method: 'post',
+    data
+  })
+}
