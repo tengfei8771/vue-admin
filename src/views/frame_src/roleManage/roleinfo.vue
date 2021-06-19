@@ -172,6 +172,8 @@ export default {
         roleId: row.ID
       }
       this.roleForMenuForm.RoleID = row.ID
+      // 清空所有选择项
+      this.$refs.menuTree.setCheckedKeys([])
       getMenubyRole(temp).then((res) => {
         // this.$refs.menuTree.setCheckedKeys(res.data.items.MenuID,true)
         res.data.items.MenuID.forEach((item) => {
