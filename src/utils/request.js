@@ -1,26 +1,26 @@
 import axios from 'axios'
-import JSONBIG from 'json-bigint'
+// import JSONBIG from 'json-bigint'
 import { MessageBox, Message, Notification, Loading } from 'element-ui'
 import store from '@/store'
 import { getToken, getRefreshToken, setToken } from '@/utils/auth'
 import { refreshToken } from '@/api/user'
-import data from '@/views/base_src/pdf/content'
+// import data from '@/views/base_src/pdf/content'
 
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000,// request timeout
-  transformResponse: [data => {
-    try {
-      let newdata = JSONBIG.parse(data)
-      console.log(newdata)
-      return newdata
-    }
-    catch {
-      return data
-    }
-  }]
+  timeout: 5000// request timeout
+  // transformResponse: [data => {
+  //   try {
+  //     let newdata = JSONBIG.parse(data)
+  //     console.log(newdata)
+  //     return newdata
+  //   }
+  //   catch {
+  //     return data
+  //   }
+  // }]
 })
 // 遮罩层服务
 let loadingInstance
@@ -134,8 +134,11 @@ service.interceptors.response.use(
       case 2001:
         CreateNotify(res.message, '成功', 'success')
         break
+      case 2002:
+        CreateNotify(res.message, '错误', 'error')
+        break
       case -1:
-        CreateNotify(res.message, '失败', 'error')
+        CreateNotify(res.message, '异常！', 'warning')
         break
       default:
         break

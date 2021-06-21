@@ -45,7 +45,7 @@
       </el-col>
       <el-col :span="12">
         <el-card class="box-card">
-          <div slot="header">菜单授权</div>
+          <div slot="header">角色授权</div>
           <el-tree ref="menuTree" :data="menuTree" show-checkbox node-key="ID" :props="defaultProps" />
           <div style="text-align:center">
             <el-button :size="size" type="primary" @click="submitRoleForMenu">授权</el-button>
