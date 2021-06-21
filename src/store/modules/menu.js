@@ -31,6 +31,7 @@ const actions = {
             let realMenuTree = CreateRealParentMenuRouteNode(res.data.items)
             commit('SET_MENUINFO', constantRoutes.concat(realMenuTree))
             commit('SET_RENDERMENUINFO', constantRoutes.concat(renderMenuTree))
+            console.log(state.menuinfo)
             resolve()
           }
         })
@@ -51,7 +52,7 @@ function CreateRenderMenuParentNode(DataSource) {
   let Menu = []
   // 找父ID为0且使用的菜单数据
   DataSource.filter(
-    t => (t.MenuParentID === '0' || t.MenuParentID === null) && t.IsUse === 1
+    t => (t.MenuParentID === 0 || t.MenuParentID === null) && t.IsUse === 1
   ).forEach(t => {
     let ParentRouteNode = {
       MenuID: t.ID,
@@ -101,7 +102,7 @@ function CreateRealParentMenuRouteNode(DataSource) {
   let Menu = []
   // 找父ID为0且使用的菜单数据
   DataSource.filter(
-    t => t.MenuParentID === '0' && t.MenuParentID === null && t.IsUse === 1
+    t => t.MenuParentID === 0 && t.MenuParentID === null && t.IsUse === 1
   ).forEach(t => {
     let ParentRouteNode = {
       MenuID: t.ID,

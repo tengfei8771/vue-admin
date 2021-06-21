@@ -1,14 +1,26 @@
 import axios from 'axios'
+import JSONBIG from 'json-bigint'
 import { MessageBox, Message, Notification, Loading } from 'element-ui'
 import store from '@/store'
 import { getToken, getRefreshToken, setToken } from '@/utils/auth'
 import { refreshToken } from '@/api/user'
+import data from '@/views/base_src/pdf/content'
 
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000 // request timeout
+  timeout: 5000,// request timeout
+  transformResponse: [data => {
+    try {
+      let newdata = JSONBIG.parse(data)
+      console.log(newdata)
+      return newdata
+    }
+    catch {
+      return data
+    }
+  }]
 })
 // 遮罩层服务
 let loadingInstance
